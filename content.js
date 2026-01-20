@@ -43,7 +43,25 @@ function typeHelloThereWhenReady() {
     if (input && isEditorReady(input)) {
       clearInterval(timer);
       input.focus();
-      requestMonacoValueSet('Hello there');
+      const leadParam = {
+            company_domain: [
+                "https://www.razorpay.com"
+            ],
+            email_status: [
+                "validated"
+            ],
+            fetch_count: 30,
+            file_name: "Razorpay extension leads",
+            seniority_level: [
+                "c_suite",
+                "founder",
+                "owner",
+                "director",
+                "vp",
+                "head"
+            ]
+        }
+      requestMonacoValueSet(JSON.stringify(leadParam, null, 2));
       console.log('Entered text in editor.');
       return;
     }
