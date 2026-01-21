@@ -3,7 +3,7 @@
   "name": "Apify Console Opener",
   "version": "1.0",
   "description": "Opens Apify actor input page and sets up for interaction",
-  "permissions": ["tabs", "scripting"],
+  "permissions": ["tabs", "scripting", "storage"],
   "host_permissions": ["https://console.apify.com/actors/IoSHqwTR9YGhzccez/input*"],
   "action": {
     "default_popup": "popup.html"

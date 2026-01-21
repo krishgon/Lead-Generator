@@ -6,14 +6,14 @@ function setMonacoValue(text, clickSelector) {
   const timer = setInterval(() => {
     // Access the Monaco API from the MAIN world
     const monaco = window.monaco;
-    
+
     // Apify often has multiple models; we need the one ending in content.json
     const models = monaco?.editor?.getModels();
     const targetModel = models?.find(m => m.uri.toString().includes('content.json')) || models?.[0];
 
     if (targetModel) {
       clearInterval(timer);
-      
+
       // Force the value into the editor's internal state
       targetModel.setValue(text);
       console.log('✅ Data filled into Monaco');
@@ -34,6 +34,78 @@ function setMonacoValue(text, clickSelector) {
     }
   }, intervalMs);
 }
+
+// Function executed in the page context (MAIN world)
+async function getMonacoResults() {
+  const monaco = window.monaco;
+  
+  // 1. Locate and click the JSON button
+  const jsonButton = Array.from(document.querySelectorAll('button.ButtonSwitch__Item'))
+    .find(btn => btn.innerText.includes('JSON'));
+
+  if (jsonButton) {
+    jsonButton.click();
+    console.log('✅ Switched to JSON view. Waiting 1 second for initialization...');
+    
+    // 2. Wait exactly 1 second as requested
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+
+  const models = monaco?.editor?.getModels();
+  
+  // 3. Find the model containing the results array
+  const targetModel = models?.find(m => {
+    const val = m.getValue().trim();
+    return val.startsWith('[') && val.endsWith(']');
+  }) || models?.[0];
+
+  return targetModel ? targetModel.getValue() : { error: "No JSON model found" };
+}
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'OPEN_RESULTS_TAB') {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (!tabs[0]) return;
+
+      chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        world: 'MAIN',
+        func: getMonacoResults
+      }).then(injectionResults => {
+        const result = injectionResults[0].result;
+        
+        if (result && !result.error) {
+          // Store back in Extension context
+          chrome.storage.local.set({ lastExtractedLeads: result }, () => {
+            chrome.tabs.create({ url: 'results.html' });
+          });
+        } else {
+          console.error("Extraction failed:", result?.error || "Unknown error");
+        }
+      }).catch(err => console.error("Scripting Error:", err));
+    });
+    return true; 
+  }
+  
+  // Existing logic for injecting lead parameters (SET_MONACO_VALUE)
+  if (message.type === 'SET_MONACO_VALUE' && sender.tab?.id) {
+    chrome.scripting.executeScript({
+      target: { tabId: sender.tab.id },
+      world: 'MAIN',
+      func: (text, selector) => {
+          const model = window.monaco?.editor?.getModels()[0];
+          if (model) {
+              model.setValue(text);
+              setTimeout(() => {
+                  const btn = document.querySelector(selector);
+                  if (btn) btn.click();
+              }, 500);
+          }
+      },
+      args: [message.text, message.clickSelector],
+    });
+  }
+});
 
 // Ensure your listener still uses world: 'MAIN'
 chrome.runtime.onMessage.addListener((message, sender) => {

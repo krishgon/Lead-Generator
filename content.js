@@ -35,7 +35,7 @@ function clickJsonWhenReady() {
 
 function typeHelloThereWhenReady() {
   const maxWaitMs = 30000;
-  const intervalMs = 200;
+  const intervalMs = 250;
   const startTime = Date.now();
 
   const timer = setInterval(() => {
@@ -43,27 +43,18 @@ function typeHelloThereWhenReady() {
     if (input && isEditorReady(input)) {
       clearInterval(timer);
       input.focus();
-      const leadParam = {
-        company_domain: ["https://www.staffcloud.net"],
-        email_status: ["validated"],
-        fetch_count: 30,
-        file_name: "Razorpay extension leads",
-        seniority_level: [
-          "c_suite",
-          "founder",
-          "owner",
-          "director",
-          "vp",
-          "head"
-        ]
-      }
-      requestMonacoValueSet(JSON.stringify(leadParam, null, 2));
-      console.log('Entered text in editor.');
+
+      // --- NEW LOGIC: GET DYNAMIC PARAMS ---
+      chrome.storage.local.get(['activeLeadParams'], (res) => {
+        const leadParam = res.activeLeadParams || { error: "No params found" };
+        requestMonacoValueSet(JSON.stringify(leadParam, null, 2));
+        console.log('✅ Injected dynamic params into Monaco.');
+      });
       return;
     }
     if (Date.now() - startTime >= maxWaitMs) {
       clearInterval(timer);
-      console.warn('Editor textarea not found before timeout.');
+      console.warn('Timeout looking for editor.');
     }
   }, intervalMs);
 }
