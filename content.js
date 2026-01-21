@@ -98,3 +98,4 @@ function isEditorReady(input) {
 // } else {
 //   window.addEventListener('load', clickJsonWhenReady, { once: true });
 // }
+clickJsonWhenReady();
