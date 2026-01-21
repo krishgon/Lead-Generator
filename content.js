@@ -34,33 +34,40 @@ function clickJsonWhenReady() {
 }
 
 function typeHelloThereWhenReady() {
-  const maxWaitMs = 15000;
-  const intervalMs = 500; // Slower interval to let the UI settle
+  const maxWaitMs = 30000;
+  const intervalMs = 200;
   const startTime = Date.now();
 
   const timer = setInterval(() => {
-    // Check if the wrapper exists in the DOM
-    const wrapper = document.querySelector('[data-test="monaco-editor-wrapper"]');
-    
-    if (wrapper) {
+    const input = document.querySelector('textarea.inputarea');
+    if (input && isEditorReady(input)) {
       clearInterval(timer);
-      
+      input.focus();
       const leadParam = {
-        company_domain: ["https://www.razorpay.com"],
-        email_status: ["validated"],
+        company_domain: [
+          "https://www.razorpay.com"
+        ],
+        email_status: [
+          "validated"
+        ],
         fetch_count: 30,
         file_name: "Razorpay extension leads",
-        seniority_level: ["c_suite", "founder", "owner", "director", "vp", "head"]
-      };
-
-      // Send the data to background.js to handle the MAIN world injection
+        seniority_level: [
+          "c_suite",
+          "founder",
+          "owner",
+          "director",
+          "vp",
+          "head"
+        ]
+      }
       requestMonacoValueSet(JSON.stringify(leadParam, null, 2));
+      console.log('Entered text in editor.');
       return;
     }
-
     if (Date.now() - startTime >= maxWaitMs) {
       clearInterval(timer);
-      console.warn('Editor wrapper not found');
+      console.warn('Editor textarea not found before timeout.');
     }
   }, intervalMs);
 }
@@ -91,5 +98,3 @@ function isEditorReady(input) {
 // } else {
 //   window.addEventListener('load', clickJsonWhenReady, { once: true });
 // }
-
-clickJsonWhenReady();
