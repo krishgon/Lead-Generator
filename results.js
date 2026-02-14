@@ -2,9 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('tableBody');
   const urlInput = document.getElementById('webhookUrl');
   
-  // Load saved URL and set default date
+  // Load saved URL
   chrome.storage.local.get(['webhookUrl'], (res) => { if(res.webhookUrl) urlInput.value = res.webhookUrl; });
-  document.getElementById('startDate').valueAsDate = new Date();
 
   chrome.storage.local.get(['lastExtractedLeads'], (result) => {
     if (!result.lastExtractedLeads) return;
