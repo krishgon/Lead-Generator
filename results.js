@@ -8,11 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
   chrome.storage.local.get(['lastExtractedLeads'], (result) => {
     if (!result.lastExtractedLeads) return;
     const leads = JSON.parse(result.lastExtractedLeads).filter(l => l.email);
-    
+    console.log(leads);    
     leads.forEach(item => {
       const row = `<tr>
         <td>${item.first_name || ''} ${item.last_name || ''}</td>
         <td>${item.company_name || 'N/A'}</td>
+        <td>${item.job_title || 'N/A'}</td>
         <td>${item.email}</td>
       </tr>`;
       tbody.innerHTML += row;
@@ -30,6 +31,7 @@ document.getElementById('sendToSheetBtn').addEventListener('click', async () => 
   // Filter for valid emails
   const leads = JSON.parse(result.lastExtractedLeads || "[]").filter(l => l.email);
 
+
   if (leads.length === 0) return alert("No leads with emails found to push.");
 
   // --- SIMPLIFIED: JUST SEND DATA, NO DATES ---
@@ -37,7 +39,8 @@ document.getElementById('sendToSheetBtn').addEventListener('click', async () => 
       poc: `${item.first_name || ''} ${item.last_name || ''}`.trim(),
       first_name: item.first_name || '',
       firm: item.company_name || 'N/A',
-      recipient: item.email
+      recipient: item.email,
+      poc_role: item.job_title
   }));
 
   // Push to Apps Script

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Apify Console Opener",
-  "version": "1.0",
+  "version": "1.5",
   "description": "Opens Apify actor input page and sets up for interaction",
   "permissions": ["tabs", "scripting", "storage"],
   "host_permissions": ["https://console.apify.com/actors/IoSHqwTR9YGhzccez/input*"],
