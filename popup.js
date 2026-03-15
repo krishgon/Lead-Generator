@@ -22,7 +22,8 @@ document.getElementById('configBtn').addEventListener('click', () => {
     email_status: ["validated"],
     fetch_count: 100, // Updated to 100 as requested
     file_name: "Dynamic Lead Export",
-    seniority_level: ["c_suite", "founder", "owner", "director", "vp", "head"]
+    seniority_level: ["c_suite", "founder", "owner", "director", "vp", "head"],
+    contact_location: ["india"] 
   };
 
   // Save the parameters to storage for content.js to pick up

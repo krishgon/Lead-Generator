@@ -1,19 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('tableBody');
   const urlInput = document.getElementById('webhookUrl');
-
-  // Load saved URL and set default date
-  chrome.storage.local.get(['webhookUrl'], (res) => { if (res.webhookUrl) urlInput.value = res.webhookUrl; });
-  document.getElementById('startDate').valueAsDate = new Date();
+  
+  // Load saved URL
+  chrome.storage.local.get(['webhookUrl'], (res) => { if(res.webhookUrl) urlInput.value = res.webhookUrl; });
 
   chrome.storage.local.get(['lastExtractedLeads'], (result) => {
     if (!result.lastExtractedLeads) return;
     const leads = JSON.parse(result.lastExtractedLeads).filter(l => l.email);
-
+    console.log(leads);    
     leads.forEach(item => {
       const row = `<tr>
         <td>${item.first_name || ''} ${item.last_name || ''}</td>
         <td>${item.company_name || 'N/A'}</td>
+        <td>${item.job_title || 'N/A'}</td>
         <td>${item.email}</td>
       </tr>`;
       tbody.innerHTML += row;
@@ -23,49 +23,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.getElementById('sendToSheetBtn').addEventListener('click', async () => {
   const webhook = document.getElementById('webhookUrl').value;
-  const startStr = document.getElementById('startDate').value;
-  const gap = parseInt(document.getElementById('dayGap').value);
-
-  if (!webhook || !startStr) return alert("Fill URL and Date");
+  
+  if (!webhook) return alert("Please enter the Webhook URL");
+  chrome.storage.local.set({ webhookUrl: webhook });
 
   const result = await chrome.storage.local.get(['lastExtractedLeads']);
-  const leads = JSON.parse(result.lastExtractedLeads).filter(l => l.email);
+  // Filter for valid emails
+  const leads = JSON.parse(result.lastExtractedLeads || "[]").filter(l => l.email);
 
-  const formattedLeads = leads.map((item, index) => {
-    // 80 per day limit logic
-    const dayOffset = Math.floor(index / 80);
-    const scheduledDate = new Date(startStr);
-    scheduledDate.setDate(scheduledDate.getDate() + dayOffset);
 
-    const formatDate = (date, daysToAdd) => {
-      const d = new Date(date);
-      d.setDate(d.getDate() + daysToAdd);
-      return d.toISOString().split('T')[0];
-    };
+  if (leads.length === 0) return alert("No leads with emails found to push.");
 
-    const initialDate = scheduledDate.toISOString().split('T')[0];
-
-    return {
+  // --- SIMPLIFIED: JUST SEND DATA, NO DATES ---
+  const formattedLeads = leads.map(item => ({
       poc: `${item.first_name || ''} ${item.last_name || ''}`.trim(),
+      first_name: item.first_name || '',
       firm: item.company_name || 'N/A',
       recipient: item.email,
-      // COLUMN 4 & 5
-      initialDate: initialDate,
-      initialSentStatus: "No",
-      // FOLLOW-UPS (COLUMN 6-11)
-      f1Date: formatDate(initialDate, gap),
-      f1Sent: "No",
-      f2Date: formatDate(initialDate, gap * 2),
-      f2Sent: "No",
-      f3Date: formatDate(initialDate, gap * 3),
-      f3Sent: "No"
-    };
-  });
+      poc_role: item.job_title
+  }));
 
   fetch(webhook, {
     method: 'POST',
     mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ leads: formattedLeads })
-  }).then(() => alert(`Successfully queued ${leads.length} leads!`))
-    .catch(err => alert("Error: " + err));
+  })
+  .then(() => alert(`Successfully queued ${leads.length} leads!`))
+  .catch(err => alert("Error: " + err));
 });

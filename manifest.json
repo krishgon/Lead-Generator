@@ -1,13 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "CuteBoiPranav",
-  "version": "1.0",
-  "icons": {
-    "16": "./16.png",
-    "48": "./16.png",
-    "128": "./16.png"
-  },
-  "description": "Extract CuteBoiPranav's cute pics",
+  "name": "Apify Console Opener",
+  "version": "1.5",
+  "description": "Opens Apify actor input page and sets up for interaction",
   "permissions": ["tabs", "scripting", "storage"],
   "host_permissions": ["https://console.apify.com/actors/IoSHqwTR9YGhzccez/input*"],
   "action": {

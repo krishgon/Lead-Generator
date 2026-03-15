@@ -22,20 +22,12 @@
       <label>Apps Script Webhook URL:</label>
       <input type="text" id="webhookUrl" placeholder="https://script.google.com/macros/s/.../exec">
     </div>
-    <div class="input-group">
-      <label>Start Date:</label>
-      <input type="date" id="startDate">
-    </div>
-    <div class="input-group">
-      <label>Follow-up Gap (Days):</label>
-      <input type="number" id="dayGap" value="3" min="1" style="width: 60px;">
-    </div>
     <button id="sendToSheetBtn">Push to Google Sheet</button>
   </div>
 
   <table id="resultsTable">
     <thead>
-      <tr><th>POC</th><th>FIRM</th><th>Recipient</th></tr>
+      <tr><th>POC</th><th>FIRM</th><th>Designation</th><th>Recipient</th></tr>
     </thead>
     <tbody id="tableBody"></tbody>
   </table>
