@@ -3,7 +3,8 @@
 All notable changes to the SHARE Lead Generator extension.
 This project uses [Semantic Versioning](https://semver.org/).
 
-## [2.0.0] - 2026-06-17
+## [3.0.0] - 2026-06-17
+First published release of the SHARE-integrated Lead Generator (fresh baseline).
 ### Added
 - Dispatch leads to the SHARE **master sheet** with the required `secret` and batch
   `userId`, so leads route to the correct teammate's daughter sheet.

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SHARE Lead Generator",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Scrapes leads via Apify and dispatches them to the SHARE master sheet, tagged with a userId for routing.",
   "permissions": ["tabs", "scripting", "storage"],
   "host_permissions": [
